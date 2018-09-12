@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Test Drive</title>
+	  <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
+  	<script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
+  	<script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+</head>
+<body>
+	<div id="app"></div>
+
+	<script>
+		// faking AJAX req
+		window.API = {
+			fetchPups() {
+				return new Promise((res, rej) => {
+					const pups = ['Scrappy', 'Enigma', 'Bandit']
+					setTimeout(() => res(pups), 2000)
+				})
+			}
+		}
+	</script>
+
+	<script type="text/babel">
+
+		class Loading extends React.Component {
+			constructor(props) {
+				super(props)
+
+				this.state = {
+					text: 'Loading'
+				}
+			}
+
+			componentDidMount() {
+				const stopper = this.state.text + '...'
+
+				this.interval = window.setInterval(() => {
+					this.state.text === stopper
+						? this.setState({text: 'Loading'})
+						: this.setState((currentState) => {
+								return {
+									text: currentState.text + '.'
+								}
+							})
+				}, 300)	
+			}
+
+			componentWillUnmount() {
+				window.clearInterval(this.interval)
+			}
+
+			render() {
+				return <p>{this.state.text}</p>
+			}
+		}
+
+		function PupList(props) {
+			return (
+				<ul>
+					<p>Active Pups: </p>
+					{props.list.map((pupName) => (
+						<li key={pupName}>
+							<span>{pupName}</span>
+							<button onClick={() => props.onRemovePup(pupName)}> remove </button>
+							<button onClick={() => props.onDeactivate(pupName)}> deactivate </button>
+						</li>
+					))}
+				</ul>
+			)
+		}
+
+
+		function InactivePupList(props) {
+			return (
+				<ul>
+					<p>Inactive Pups: </p>
+					{props.inactive.map((pupName) => (
+						<li key={pupName}>
+							<span>{pupName}</span>
+							<button onClick={() => props.onAddPup(pupName)}> activate </button>
+						</li>
+					))}
+				</ul>
+			)
+		}
+
+
+		function ClearAllLists(props) {
+			return <button onClick={() => props.onClear()}> clear ALL lists </button>	
+		}
+
+		class App extends React.Component {
+			constructor(props) {
+				super(props)
+
+				this.state = {
+					pups: [],
+					input: '',
+					inactive: [],
+					loading: true,
+				}
+
+				this.handleRemovePup = this.handleRemovePup.bind(this)
+
+				this.updateInput = this.updateInput.bind(this)
+
+				this.handleAddPup = this.handleAddPup.bind(this)
+
+				this.deactivate = this.deactivate.bind(this)
+
+				this.reactivate = this.reactivate.bind(this)
+
+				this.clearLists = this.clearLists.bind(this)
+
+				console.log('--constructor--')
+			}
+
+			// where you make AJAX req
+			componentDidMount() {
+				console.log('--componentDidMount--')
+				
+				API.fetchPups()
+					.then((pups) => {
+						// console.log(pups);
+						this.setState({
+							pups,
+							loading: false
+						})
+					})
+			}
+
+			componentDidUpdate() {
+				console.log('--componentDidUpdate--')
+			}
+
+			componentWillUnmount() {
+				console.log('--componentWillUnmount--')
+			}
+
+			handleAddPup(pupName) {
+				this.setState((currentState) => {
+					if(this.state.input !== '') {
+						return {
+							pups: currentState.pups.concat([currentState.input]),
+							input: '',
+						}
+					}
+				})
+			}
+ 
+			handleRemovePup(pupName) {
+				this.setState((currentState) => {
+					return  {
+						pups: currentState.pups.filter((pup) => pup !== pupName),
+					}
+				})
+			}
+
+			updateInput(e) {
+				const value = e.target.value
+
+				this.setState({
+					input: value
+				})
+			}
+
+			deactivate(pupName) {
+				this.setState((currentState) => {
+					return {
+						pups: currentState.pups.filter((pup) => pup !== pupName),
+						inactive: currentState.inactive.concat([pupName]),
+					}
+				})
+			}
+
+			reactivate(pupName) {
+				this.setState((currentState) => {
+					return {
+						inactive: currentState.inactive.filter((pup) => pup !== pupName),
+						pups: currentState.pups.concat([pupName]),
+					}
+				})
+			}
+
+			clearLists() {
+				this.setState({
+					pups: [],
+					inactive: [],
+				})
+			}
+
+			render() {
+				console.log('--render--')
+
+				if(this.state.loading === true) {
+					return <Loading />
+				}
+
+				return (
+					<div>
+						<input
+							type='text'
+							placeholder='new pup'
+							value={this.state.input}
+							onChange={this.updateInput}
+						/>
+						<button onClick={this.handleAddPup}> submit </button>
+						<ClearAllLists
+							onClear={this.clearLists}
+						/>
+						<PupList 
+							list={this.state.pups}
+							onRemovePup={this.handleRemovePup}
+							onDeactivate={this.deactivate}
+						/>
+						<InactivePupList 
+							inactive={this.state.inactive}
+							onAddPup={this.reactivate}
+						/>
+					</div>
+				)
+			}
+		}
+
+		ReactDOM.render(<App/>, document.getElementById('app'))
+	</script>
+</body>
+</html>
