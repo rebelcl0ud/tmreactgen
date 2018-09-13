@@ -2,6 +2,7 @@
 <html>
 <head>
   <title>Popular Repos</title>
+  <meta charset='utf-8'>
   <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
   <script src='https://unpkg.com/babel-standalone@6/babel.min.js'></script>
@@ -64,22 +65,52 @@
       );
     }
 
-    function Repo(props) {
-
+  {/* this will list the repos once API called */}
+    function ReposListing(props) {
+      return (
+        <ul>
+          {props.repos.map(({name, owner, html_url, stargazers_count}) => (
+            <li key={name}>
+              <ul>
+                <li><a href={html_url}>{name}</a></li>
+                <li>@{owner.login}</li>
+                <li>{stargazers_count}</li>
+              </ul>
+            </li>
+          ))}
+        </ul>
+      )
     }
-
+   
     class App extends React.Component {
       constructor(props) {
         super(props);
 
         this.state = {
           languages: 'all',
+          repos: [],
           title: 'all',
         }
 
         this.handleMenuItemClick = this.handleMenuItemClick.bind(this);
+        this.fetchRepos = this.fetchRepos.bind(this);
       }
-     
+
+      // component mounts, calls fetchRepos; uses state as arg
+      componentDidMount() {
+        this.fetchRepos(this.state.languages)
+      }
+
+      // this sets up the API to be called, changing state
+      fetchRepos(lang) {
+        window.API.fetchPopularRepos(lang)
+          .then((repos) => {
+            this.setState({
+              repos,
+            })
+          })  
+      }
+
       handleMenuItemClick(lang) {
         this.setState({
           languages: lang,
@@ -92,6 +123,8 @@
           <div>
             <Menu onMenuItem={this.handleMenuItemClick}/>
             <h1>{this.state.title} repos:</h1>
+          {/* this passes fetchRepos state as a prop to ReposListing component */}
+            <ReposListing repos={this.state.repos}/>
           </div>
         )
       }
