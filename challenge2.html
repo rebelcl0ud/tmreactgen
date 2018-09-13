@@ -89,7 +89,6 @@
         this.state = {
           languages: 'all',
           repos: [],
-          title: 'all',
           loading: true,
         }
 
@@ -128,7 +127,6 @@
       handleMenuItemClick(lang) {
         this.setState({
           languages: lang,
-          title: lang,
         });
       }
 
@@ -141,7 +139,7 @@
             {this.state.loading === true 
               ? <Loading />
               : <div>
-                  <h1>{this.state.title} repos:</h1>
+                  <h1>{this.state.languages} repos:</h1>
                   <ReposListing repos={this.state.repos}/>
                 </div>}
           </div>
