@@ -6,6 +6,20 @@
   <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
   <script src='https://unpkg.com/babel-standalone@6/babel.min.js'></script>
+  <style>
+    .repoGrid {
+      display: flex;
+      flex-wrap: wrap;
+    }
+    .repos {
+      margin: 25px;
+    }
+
+    .title,
+    .loadStatus {
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
   <div id='app'></div>
@@ -46,7 +60,7 @@
       }
       render() {
         return (
-          <p>
+          <p className="loadStatus">
             {this.state.text}
           </p>
         )
@@ -68,9 +82,9 @@
   {/* this will list the repos once API called */}
     function ReposListing(props) {
       return (
-        <ul>
+        <ul className="repoGrid">
           {props.repos.map(({name, owner, html_url, stargazers_count}) => (
-            <li key={name}>
+            <li key={name} className="repos">
               <ul>
                 <li><a href={html_url}>{name}</a></li>
                 <li>@{owner.login}</li>
@@ -139,7 +153,7 @@
             {this.state.loading === true 
               ? <Loading />
               : <div>
-                  <h1>{this.state.languages} repos:</h1>
+                  <h1 className="title">{this.state.languages} repos:</h1>
                   <ReposListing repos={this.state.repos}/>
                 </div>}
           </div>
