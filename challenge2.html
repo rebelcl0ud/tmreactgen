@@ -90,6 +90,7 @@
           languages: 'all',
           repos: [],
           title: 'all',
+          loading: true,
         }
 
         this.handleMenuItemClick = this.handleMenuItemClick.bind(this);
@@ -111,10 +112,15 @@
 
       // this sets up the API to be called, changing state
       fetchRepos(lang) {
+        this.setState({
+          loading: true,
+        })
+
         window.API.fetchPopularRepos(lang)
           .then((repos) => {
             this.setState({
               repos,
+              loading: false,
             })
           })  
       }
@@ -130,13 +136,19 @@
         return (
           <div>
             <Menu onMenuItem={this.handleMenuItemClick}/>
-            <h1>{this.state.title} repos:</h1>
-          {/* this passes fetchRepos state as a prop to ReposListing component */}
-            <ReposListing repos={this.state.repos}/>
+            {/* CONDITIONAL RENDERING: if loading, show loading else display repos */}
+            {/* ERROR showing up fixed; needed to wrap elements in div*/}
+            {this.state.loading === true 
+              ? <Loading />
+              : <div>
+                  <h1>{this.state.title} repos:</h1>
+                  <ReposListing repos={this.state.repos}/>
+                </div>}
           </div>
         )
       }
     }
+
     ReactDOM.render(
       <App />,
       document.getElementById('app')
