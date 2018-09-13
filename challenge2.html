@@ -96,6 +96,14 @@
         this.fetchRepos = this.fetchRepos.bind(this);
       }
 
+      // component update; compares states to determine whether to call fetchRepos
+      // reference: https://reactjs.org/docs/react-component.html
+      componentDidUpdate(prevProp, prevState) {
+        if(prevState.languages !== this.state.languages) {
+          this.fetchRepos(this.state.languages)
+        }
+      }
+
       // component mounts, calls fetchRepos; uses state as arg
       componentDidMount() {
         this.fetchRepos(this.state.languages)
